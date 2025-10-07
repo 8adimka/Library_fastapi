@@ -74,10 +74,8 @@ class BorrowingRead(BaseModel):
 
 # Note
 class NoteCreate(BaseModel):
-    note: str = Field(..., min_length=1, max_length=120, strip_whitespace=True)
-    description: Optional[str] = Field(
-        default=None, max_length=1024, strip_whitespace=True
-    )
+    note: str = Field(..., min_length=1, max_length=120)
+    description: Optional[str] = Field(default=None, max_length=1024)
 
 
 class NoteRead(BaseModel):
