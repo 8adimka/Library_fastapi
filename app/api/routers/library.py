@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ... import crud, models, schemas
@@ -9,15 +9,26 @@ from ..deps import get_db_dep
 router = APIRouter(prefix="/api/library", tags=["library"])
 
 
-# Authors
-@router.post("/authors/", response_model=schemas.AuthorRead)
+@router.post("/authors/", response_model=schemas.AuthorRead, status_code=201)
 def create_author(author: schemas.AuthorCreate, db: Session = Depends(get_db_dep)):
     return crud.create_author(db, author)
 
 
+
 @router.get("/authors/", response_model=List[schemas.AuthorRead])
-def list_authors(db: Session = Depends(get_db_dep)):
-    return crud.list_authors(db)
+def list_authors(
+    db: Session = Depends(get_db_dep),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0)
+):
+    return db.query(models.Author).offset(offset).limit(limit).all()
+
+@router.get("/authors/{author_id}/", response_model=schemas.AuthorRead)
+def get_author(author_id: int, db: Session = Depends(get_db_dep)):
+    author = crud.get_author(db, author_id)
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found")
+    return author
 
 
 # Halls
@@ -31,15 +42,18 @@ def list_halls(db: Session = Depends(get_db_dep)):
     return db.query(models.Hall).all()
 
 
-# Books
-@router.post("/books/", response_model=schemas.BookRead)
+@router.post("/books/", response_model=schemas.BookRead, status_code=201)
 def create_book(book: schemas.BookCreate, db: Session = Depends(get_db_dep)):
     return crud.create_book(db, book)
 
 
 @router.get("/books/", response_model=List[schemas.BookRead])
-def list_books(db: Session = Depends(get_db_dep)):
-    return crud.list_books(db)
+def list_books(
+    db: Session = Depends(get_db_dep),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0)
+):
+    return db.query(models.Book).offset(offset).limit(limit).all()
 
 
 @router.get("/books/{book_id}/", response_model=schemas.BookRead)

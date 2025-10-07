@@ -51,4 +51,63 @@ docker-compose up --build
 - Данные будут сохраняться в Docker volume `pgdata`.
 - Для production лучше заменить автоматическое `create_all` на Alembic миграции, но пока и так сойдёт.
 
----
+## Быстрый старт
+
+1. Клонируйте репозиторий и установите зависимости:
+   ```bash
+   git clone <repo_url>
+   cd library-fastapi
+   poetry install
+   ```
+
+2. Запустите проект через Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+   API будет доступен на `http://localhost:8000`
+
+3. Запуск FastAPI вручную (без Docker):
+   ```bash
+   poetry run uvicorn app.main:app --reload
+   ```
+
+4. Миграции Alembic:
+   ```bash
+   alembic upgrade head
+   ```
+
+5. Тестирование:
+   ```bash
+   poetry run pytest
+   ```
+
+6. Парсинг логов:
+   ```bash
+   python scripts/parse_logs.py test_log.txt --sort
+   ```
+
+7. Нагрузочное тестирование:
+   ```bash
+   python scripts/testNotesREST.py
+   ```
+
+## Восстановление данных
+- Все данные хранятся в базе Postgres (docker-compose) или SQLite (тесты).
+- После перезапуска контейнеров данные сохраняются.
+
+## Миграции Alembic
+- Для создания/обновления схемы используйте команды Alembic:
+   ```bash
+   alembic revision --autogenerate -m "init"
+   alembic upgrade head
+   ```
+
+## Пагинация
+- Для списков (книги, авторы, заметки) поддерживается пагинация через параметры `limit` и `offset`.
+
+## Логирование и обработка ошибок
+- Все ошибки возвращаются с корректными статус-кодами и сообщениями.
+- Важные действия логируются.
+
+## Контакты
+- Автор: 8adimka

@@ -1,12 +1,14 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from .core import DATABASE_URL
 
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not set in environment")
+def get_database_url():
+    return os.getenv("DATABASE_URL", "sqlite:///./test.db")
 
-# sync engine (простая конфигурация)
+
+DATABASE_URL = get_database_url()
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()

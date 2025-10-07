@@ -1,17 +1,21 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
-from ... import crud, schemas
+from ... import crud, schemas, models
 from ..deps import get_db_dep
 
 router = APIRouter(prefix="/notes", tags=["notes"])
 
 
 @router.get("/", response_model=List[schemas.NoteRead])
-def list_notes(db: Session = Depends(get_db_dep)):
-    return crud.list_notes(db)
+def list_notes(
+    db: Session = Depends(get_db_dep),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0)
+):
+    return db.query(models.Note).offset(offset).limit(limit).all()
 
 
 @router.get("/{note_id}/", response_model=schemas.NoteRead)

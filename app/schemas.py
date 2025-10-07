@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, Field
 
 
 # Author
 class AuthorCreate(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1)
+    name: str = Field(..., min_length=1, strip_whitespace=True)
 
 
 class AuthorRead(BaseModel):
@@ -19,7 +19,7 @@ class AuthorRead(BaseModel):
 
 # Hall
 class HallCreate(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1)
+    name: str = Field(..., min_length=1, strip_whitespace=True)
 
 
 class HallRead(BaseModel):
@@ -32,16 +32,16 @@ class HallRead(BaseModel):
 
 # Book
 class BookCreate(BaseModel):
-    title: constr(strip_whitespace=True, min_length=1)
+    title: str = Field(..., min_length=1, strip_whitespace=True)
     hall_id: Optional[int] = None
-    author_ids: Optional[List[int]] = []
+    author_ids: Optional[List[int]] = Field(default_factory=list)
 
 
 class BookRead(BaseModel):
     id: int
     title: str
     hall: Optional[HallRead] = None
-    authors: List[AuthorRead] = []
+    authors: List[AuthorRead] = Field(default_factory=list)
 
     class Config:
         orm_mode = True
@@ -49,7 +49,7 @@ class BookRead(BaseModel):
 
 # Reader
 class ReaderCreate(BaseModel):
-    name: constr(strip_whitespace=True, min_length=1)
+    name: str = Field(..., min_length=1, strip_whitespace=True)
 
 
 class ReaderRead(BaseModel):
@@ -74,8 +74,10 @@ class BorrowingRead(BaseModel):
 
 # Note
 class NoteCreate(BaseModel):
-    note: constr(max_length=120)
-    description: Optional[constr(max_length=1024)] = None
+    note: str = Field(..., min_length=1, max_length=120, strip_whitespace=True)
+    description: Optional[str] = Field(
+        default=None, max_length=1024, strip_whitespace=True
+    )
 
 
 class NoteRead(BaseModel):
